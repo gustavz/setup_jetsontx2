@@ -1,6 +1,7 @@
 #!/bin/bash
 # copyright https://github.com/GustavZ
 # usage: ./setup_jetsontx2.sh
+
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 ME="$(whoami)"
 
