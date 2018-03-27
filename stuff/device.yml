@@ -1,0 +1,75 @@
+---
+
+### ATTENTION: Do not modify 'device.yml.sample' !! You should create a copy named 'device.yml' and modify that one !!
+
+
+### PATHS
+
+# directory to store shared robot base frameworks
+base_dir_robot_base: "{{ ansible_env.HOME }}/BSH"
+
+# directory to project root
+project_root_path: "{{ ansible_env.HOME }}/BSH"
+
+
+### SYSTEM
+
+# timezone configuration: use valid TZ string (e.g. America/Los_Angeles, Europe/Berlin)
+timezone: Europe/Berlin
+
+# keyboard configuration (either 'de' for German keyboard or 'en' for English (US) keyboard)
+keyboard_use: de
+
+# apt update cache time (i.e., cache list of available linux packages for 24 hours (default))
+apt_cache_valid_time: 86400
+
+# skip apt upgrade packages (i.e., linux software package upgrades incl. kernels)
+skip_apt_upgrade: false
+
+
+### USER
+
+# optional: set default editor (e.g. 'vim' or 'nano')
+#user_editor: vim
+
+
+### NETWORK
+
+# setup autossh for remote connection
+autossh_enabled: false
+
+# ensure autossh auto-start and keep up connection to remote relay server for remote access
+autossh_autostart: false
+
+# individual port when running autossh on non-bumblebee and non-wheeljack (should not collide with any other user!)
+autossh_my_port: 50000
+
+
+### COMPONENTS
+
+## TensorFlow
+
+tf_enable_gpu: true
+
+tf_build_from_source: true
+tf_repo_name: tensorflow
+tf_repo_branch: v1.4.0
+
+tf_models_repo_name: tensorflow_models
+tf_models_repo_url: tensorflow/models
+tf_models_repo_branch: master
+
+# see https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
+tf_models_dl_base_path: 'http://download.tensorflow.org/models/object_detection/'
+tf_models_dl_file_format: '.tar.gz'
+tf_models_dl_name: 'ssd_mobilenet_v1_coco_2017_11_17'
+
+
+## OpenCV
+
+opencv_version: 3.3.1
+opencv_repo_branch: 3.3.1
+opencv_contrib_repo_branch: 3.3.1
+opencv_extra_repo_branch: 3.3.1
+opencv_build_examples: OFF
+opencv_force_rebuild: false

@@ -1,0 +1,100 @@
+---
+
+- name: Add user {{ ansible_user_id }} to group audio and video
+  user: name={{ ansible_user_id }} groups=video,audio append=yes
+  become: yes
+
+- name: Install dependencies through apt
+  apt: name={{ item }} state=latest
+  with_items:
+    - protobuf-compiler
+  become: yes
+
+- name: Install apt dependencies arch critical
+  apt: name={{ item }} state=latest
+  with_items:
+    - python-pillow
+    - python-lxml
+    - python-matplotlib
+    - python-scipy
+    - python-skimage
+  become: yes
+  when: ansible_architecture == "aarch64"
+
+- name: Install pip dependencies
+  pip:
+    name: "{{ item }}"
+    state: latest
+    executable: pip2
+  with_items:
+    - pyyaml
+    - jupyter
+    - numpy
+    - pandas
+    - scikit-learn
+    - ipython[all]
+  become: yes
+
+- name: Install pip dependencies arch critical
+  pip:
+    name: "{{ item }}"
+    state: latest
+    executable: pip2
+  with_items:
+    - pillow
+    - lxml
+    - matplotlib
+    - scipy
+    - scikit-image
+  become: yes
+  when: ansible_architecture == "x86_64"
+
+- name: Install xlib required for screen capturing (if desired as video input)
+  apt: name={{ item }} state=latest
+  with_items:
+    - python-xlib
+    - libx11-dev
+  become: yes
+
+- name: Setup OpenCV
+  import_role:
+    name: opencv
+    allow_duplicates: false
+
+- name: Setup ROS
+  import_role:
+    name: ros_kinetic
+    allow_duplicates: false
+
+- name: Compile the Protobuf libraries used by TensorFlow Object Detection API
+  shell: protoc object_detection/protos/*.proto --python_out=.
+  args:
+    chdir: "{{ base_dir_robot_base }}/{{ tf_models_repo_name }}/research/"
+  become: yes
+
+# TODO: what to do with this?
+#- name: Compile the grab_screen C code used to natively grab the screen via xlib
+#  command: gcc -shared -O3 -Wall -fPIC -Wl,-soname,prtscn -o grab_screen.so grab_screen.c -lX11
+#  args:
+#  chdir: "../../catkin_ws/src/objdetection/src/objdetection/stuff/"
+
+- name: Create Robot Base Directory 'tensorflow_models_dl' to store TensorFlow frozen detection graphs
+  file:
+    path: "{{ base_dir_robot_base }}/tensorflow_models_dl"
+    state: directory
+    mode: 0755
+  become: yes
+
+- name: Unarchive TensorFlow model '{{ tf_models_dl_name }}'
+  unarchive:
+    src: "{{ tf_models_dl_base_path }}{{ tf_models_dl_name }}{{ tf_models_dl_file_format }}"
+    dest: "{{ base_dir_robot_base }}/tensorflow_models_dl/"
+    remote_src: yes
+    creates: "{{ base_dir_robot_base }}/tensorflow_models_dl/{{ tf_models_dl_name }}"
+    exclude:
+      - saved_model/
+    mode: 0755
+    owner: root
+    group: root
+  become: yes
+  tags: tf_models_dl

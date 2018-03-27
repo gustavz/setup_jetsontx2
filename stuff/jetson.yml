@@ -1,0 +1,109 @@
+---
+- hosts: local
+
+  pre_tasks:
+    - name: Playbook purpose
+      debug:
+        msg: "Setup Jetson of Myles with respective software stack"
+
+  tasks:
+    - block:
+        - import_role:
+            name: load_config_device
+          tags: ['always']
+
+        - import_role:
+            name: provisioning_metadata_start
+          tags: ['always']
+
+        - import_role:
+            name: setup_common
+          tags: ['setup', 'setup_common']
+
+#        - import_role:
+#            name: setup_network
+#          tags: ['setup', 'setup_network']
+
+        - import_role:
+            name: setup_robot_base
+          tags: ['setup', 'setup_robot_base']
+
+#        - import_role:
+#            name: setup_openssh
+#          tags: ['setup', 'setup_openssh']
+
+#        - import_role:
+#            name: setup_project
+#          tags: ['setup', 'setup_project']
+
+#        - import_role:
+#            name: setup_ros_base
+#          tags: ['setup', 'setup_ros_base']
+
+#        - import_role:
+#            name: setup_ros_specifics
+#          tags: ['setup', 'setup_ros_specifics']
+
+## USER-SPECIFIC ROLES START
+
+        - import_role:
+            name: setup_user_common
+          tags: ['setup', 'setup_user', 'setup_user_common']
+
+        - import_role:
+            name: setup_user_robot_base
+          tags: ['setup', 'setup_user', 'setup_user_robot_base']
+
+#        - import_role:
+#            name: setup_user_project
+#          tags: ['setup', 'setup_user', 'setup_user_project']
+
+#        - import_role:
+#            name: setup_user_ros_base
+#          tags: ['setup', 'setup_user', 'setup_user_ros_base']
+
+## USER-SPECIFIC ROLES END
+
+## DEVICE-SPECIFIC ROLES START
+
+        - import_role:
+            name: tensorflow
+          tags: ['tensorflow']
+
+        - import_role:
+            name: tensorflow_models
+          tags: ['tensorflow_models']
+
+#        - import_role:
+#            name: aws_polly
+#          tags: ['aws_polly']
+
+        - import_role:
+            name: tf_object_detection
+          tags: ['tf_object_detection']
+
+
+## DEVICE-SPECIFIC ROLES END
+
+        - import_role:
+            name: setup_autossh
+          when: autossh_enabled
+          tags: ['setup', 'setup_autossh', 'autossh']
+
+        - import_role:
+            name: services_autossh
+          tags: ['services', 'autossh']
+
+        - name: Set provisioning state
+          set_fact: provision_state="Success"
+          tags: ['always']
+
+      rescue:
+        - name: Set provisioning state
+          set_fact: provision_state="Failed"
+          tags: ['always']
+
+      always:
+        - import_role:
+            name: provisioning_metadata_end
+          tags: ['always']
