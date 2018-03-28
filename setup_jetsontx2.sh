@@ -23,8 +23,9 @@ then
 	git clone https://github.com/freemanlo/librealsense
 	cd librealsense
 	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup'"
-	echo -e " change,save and close file to continue...\e[0m"
+	echo -e " change, save and close file \e[0m"
 	gedit scripts/patch-utils.sh
+	read -p "> hit any key to continue"
 	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
 	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
@@ -63,9 +64,10 @@ then
 	mv id_rsa.pub bsh_sdd.pub
 	mv id_rsa bsh_sdd
 	echo $'Host remote scr.bsh-sdd.com \nHostname scr.bsh-sdd.com \nUser git \nIdentityFile ~/.ssh/bsh_sdd \nIdentitiesOnly yes' >config
-	echo -e "\e[34mATTENTION: copy public key stored in bsh_sdd.pub to the following link and hit Enter \e[0m"
+	echo -e "\e[34mATTENTION: copy public key stored in bsh_sdd.pub to the following link \e[0m"
 	echo -e "https://scr.bsh-sdd.com/plugins/servlet/ssh/account/keys/add"
 	gedit bsh_sdd.pub
+	read -p "> hit any key to continue"
 	echo -e "\e[32mok: successfully generated ssh-keys \e[0m"
 else
 	echo -e "\e[33mskip: ssh-key already exists \e[0m"
@@ -150,6 +152,8 @@ echo -e "Do you want to clean Jetson from unneeded packages like libreoffice (y/
 read answer
 if echo "$answer" | grep -iq "^y"
 then
+	sudo rm $DIR/stuff/bazel
+	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
 	sudo apt purge libreoffice
 	sudo autoremove
 	echo -e "\e[32mok: cleaned jetson \e[0m"
