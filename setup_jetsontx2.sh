@@ -116,7 +116,8 @@ echo -e "adding prebuild bazel binary v0.8.1"
 if [ ! -e /usr/local/bin/bazel ]
 then
 	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
-	cp $DIR/stuff/bazel /usr/local/bin/bazel
+	sudo cp $DIR/stuff/bazel /usr/local/bin/bazel
+	sudo chmod 755 /usr/local/bin/bazel
 	echo -e "\e[32mok: added bazel \e[0m"
 else
 	echo -e "\e[33mskip: bazel already installed \e[0m"
