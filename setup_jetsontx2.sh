@@ -80,6 +80,7 @@ then
 	cp $DIR/stuff/jetson.yml ~/BSH/myles/setup-myles/ansible/jetson.yml
 	cp $DIR/stuff/device.yml ~/BSH/myles/setup-myles/config/device.yml
 	cp $DIR/stuff/tf_role.yml ~/BSH/setup-robot-base/ansible/roles/tf_object_detection/tasks/main.yml
+	cp $DIR/stuff/sc_role.yml ~/BSH/setup-common-lib/ansible/roles/setup_common/tasks/main.yml
 	echo -e "\e[32mok: added Robot Base config files \e[0m"
 else
 	echo -e "\e[33mskip: Robot Base already set-up \e[0m"

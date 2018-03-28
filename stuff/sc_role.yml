@@ -1,0 +1,43 @@
+
+---
+
+- name: Set timezone to "{{ timezone }}"
+  timezone: name={{ timezone }}
+  become: yes
+  register: tz_data
+  tags: [timezone]
+
+- name: Apply timezone change
+  command: dpkg-reconfigure --frontend noninteractive tzdata
+  become: yes
+  when: tz_data.changed
+  tags: [timezone]
+
+- include_tasks: locales.yml
+
+- name: Update packages to latest status (with {{ apt_cache_valid_time }} seconds cache valid time)
+  apt: update_cache=yes cache_valid_time={{ apt_cache_valid_time }}
+  become: yes
+
+- name: Install common packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - aptitude
+    - python-apt
+    - python3-apt
+    - unzip
+    - debconf
+    - debconf-utils
+  become: yes
+
+- name: Upgrade packages to latest status
+  apt:
+    upgrade: yes
+    force: yes
+    autoremove: yes
+    state: latest
+  when: not skip_apt_upgrade
+  become: yes
+
+#- include_tasks: reboot.yml
+#  when: ansible_user_id != "vagrant"
