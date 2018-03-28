@@ -8,16 +8,27 @@ ME="$(whoami)"
 echo -e "\e[32mWritten for Nvidia Jetson Tx2 running on Ubuntu 16.04 flashed with JetPack3.2 \e[0m"
 read -p "> Hit any key to start..."
 
-# delete openCV
-echo -e "Do you want to delete openCV which is necessary if flashed with JetPack3.2 (y/n)? "
-read answer
-if echo "$answer" | grep -iq "^y"
+# setup realsense camera
+echo -e "installing librealsense"
+if [ ! -e /usr/local/bin/realsense-viewer ]
 then
-    dpkg -l libopencv*
-	sudo apt-get purge libopencv*
-	echo -e "\e[32mok: removed all openCV packages \e[0m"
+	sudo apt-get update
+	cd ~/workspace
+	git clone https://github.com/freemanlo/librealsense
+	cd librealsense
+	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup' \e[0m"
+	gedit scripts/patch-utils.sh
+	read -p "> hit any key to proceed..."
+	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
+	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules && udevadm trigger
+	mkdir build && cd build
+	cmake ../ -DBUILD_EXAMPLES=true
+	sudo make uninstall && make clean && make -j4 && sudo make install
+	echo -e "\e[32mok: installed realsense sdk \e[0m"
 else
-    echo -e "\e[33mskip: keeping openCV \e[0m"
+	echo -e "\e[33mskip: realsense packages are already installed \e[0m"
 fi
 
 # setup ansible
@@ -54,7 +65,7 @@ else
 	echo -e "\e[33mskip: ssh-key already exists \e[0m"
 fi
 
-# setup BSH Robot-Base
+# setup BSH Structure
 echo -e "setting up Robot Base"
 if [ ! -e ~/BSH/myles/setup-myles/ansible/jetson.yml ]
 then
@@ -68,15 +79,16 @@ else
 	echo -e "\e[33mskip: Robot Base already set-up \e[0m"
 fi
 
-# setup pre-build bazel
-echo -e "adding prebuild bazel binary v0.8.1"
-if [ ! -e /usr/local/bin/bazel ]
+# delete openCV
+echo -e "Do you want to delete openCV which is necessary if flashed with JetPack3.2 (y/n)? "
+read answer
+if echo "$answer" | grep -iq "^y"
 then
-	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
-	cp $DIR/stuff/bazel /usr/local/bin/bazel
-	echo -e "\e[32mok: added bazel \e[0m"
+    dpkg -l libopencv*
+	sudo apt-get purge libopencv*
+	echo -e "\e[32mok: removed all openCV packages \e[0m"
 else
-	echo -e "\e[33mskip: bazel already installed \e[0m"
+    echo -e "\e[33mskip: keeping openCV \e[0m"
 fi
 
 # ansible playbook
@@ -89,6 +101,17 @@ then
 	echo -e "\e[32mok: ran playbook \e[0m"
 else
     echo -e "\e[33mskip: not running playbook \e[0m"
+fi
+
+# setup pre-build bazel
+echo -e "adding prebuild bazel binary v0.8.1"
+if [ ! -e /usr/local/bin/bazel ]
+then
+	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
+	cp $DIR/stuff/bazel /usr/local/bin/bazel
+	echo -e "\e[32mok: added bazel \e[0m"
+else
+	echo -e "\e[33mskip: bazel already installed \e[0m"
 fi
 
 # install pre-build tensorflow
@@ -111,27 +134,4 @@ then
 	echo -e "\e[32mok: set-up object detection repo \e[0m"
 else
 	echo -e "\e[33mskip: object detection repo already exists \e[0m"
-fi
-
-# setup realsense camera
-echo -e "installing librealsense"
-if [ ! -e /usr/local/bin/realsense-viewer ]
-then
-	sudo apt-get update
-	cd ~/workspace
-	git clone https://github.com/freemanlo/librealsense
-	cd librealsense
-	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup' \e[0m"
-	gedit scripts/patch-utils.sh
-	read -p "> hit any key to proceed..."
-	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
-	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
-	sudo udevadm control --reload-rules && udevadm trigger
-	mkdir build && cd build
-	cmake ../ -DBUILD_EXAMPLES=true
-	sudo make uninstall && make clean && make -j4 && sudo make install
-	echo -e "\e[32mok: installed realsense sdk \e[0m"
-else
-	echo -e "\e[33mskip: realsense packages are already installed \e[0m"
 fi

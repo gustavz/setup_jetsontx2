@@ -11,10 +11,14 @@
         - import_role:
             name: load_config_device
           tags: ['always']
-
-        - import_role:
-            name: provisioning_metadata_start
-          tags: ['always']
+          
+	- import_role:
+	    name: local_common	# ADDED BY GUSTAV
+	  tags: ['local_common']
+	  
+#        - import_role:
+#            name: provisioning_metadata_start
+#          tags: ['always']
 
         - import_role:
             name: setup_common
@@ -24,9 +28,9 @@
 #            name: setup_network
 #          tags: ['setup', 'setup_network']
 
-        - import_role:
-            name: setup_robot_base
-          tags: ['setup', 'setup_robot_base']
+#        - import_role:
+#            name: setup_robot_base
+#          tags: ['setup', 'setup_robot_base']
 
 #        - import_role:
 #            name: setup_openssh
@@ -46,13 +50,13 @@
 
 ## USER-SPECIFIC ROLES START
 
-        - import_role:
-            name: setup_user_common
-          tags: ['setup', 'setup_user', 'setup_user_common']
+#        - import_role:
+#            name: setup_user_common
+#          tags: ['setup', 'setup_user', 'setup_user_common']
 
-        - import_role:
-            name: setup_user_robot_base
-          tags: ['setup', 'setup_user', 'setup_user_robot_base']
+#        - import_role:
+#            name: setup_user_robot_base
+#          tags: ['setup', 'setup_user', 'setup_user_robot_base']
 
 #        - import_role:
 #            name: setup_user_project
@@ -85,25 +89,25 @@
 
 ## DEVICE-SPECIFIC ROLES END
 
-        - import_role:
-            name: setup_autossh
-          when: autossh_enabled
-          tags: ['setup', 'setup_autossh', 'autossh']
+#        - import_role:
+#            name: setup_autossh
+#          when: autossh_enabled
+#          tags: ['setup', 'setup_autossh', 'autossh']
 
-        - import_role:
-            name: services_autossh
-          tags: ['services', 'autossh']
+#        - import_role:
+#            name: services_autossh
+#          tags: ['services', 'autossh']
 
-        - name: Set provisioning state
-          set_fact: provision_state="Success"
-          tags: ['always']
+#        - name: Set provisioning state
+#          set_fact: provision_state="Success"
+#          tags: ['always']
 
-      rescue:
-        - name: Set provisioning state
-          set_fact: provision_state="Failed"
-          tags: ['always']
+#      rescue:
+#        - name: Set provisioning state
+#          set_fact: provision_state="Failed"
+#          tags: ['always']
 
-      always:
-        - import_role:
-            name: provisioning_metadata_end
-          tags: ['always']
+#      always:
+#        - import_role:
+#            name: provisioning_metadata_end
+#          tags: ['always']
