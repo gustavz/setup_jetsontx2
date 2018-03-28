@@ -8,17 +8,23 @@ ME="$(whoami)"
 echo -e "\e[32mWritten for Nvidia Jetson Tx2 running on Ubuntu 16.04 flashed with JetPack3.2 \e[0m"
 read -p "> Hit any key to start..."
 
+# make workspace directory
+if [ ! -d ~/workspace ]
+then
+	mkdir ~/workspace
+fi
+
 # setup realsense camera
 echo -e "installing librealsense"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
 	sudo apt-get update
-	mkdir ~/workspace && cd ~/workspace
+	cd ~/workspace
 	git clone https://github.com/freemanlo/librealsense
 	cd librealsense
-	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup' \e[0m"
+	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup'"
+	echo -e " change,save and close file to continue...\e[0m"
 	gedit scripts/patch-utils.sh
-	read -p "> hit any key to proceed..."
 	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
 	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
@@ -58,8 +64,8 @@ then
 	mv id_rsa bsh_sdd
 	echo $'Host remote scr.bsh-sdd.com \nHostname scr.bsh-sdd.com \nUser git \nIdentityFile ~/.ssh/bsh_sdd \nIdentitiesOnly yes' >config
 	echo -e "\e[34mATTENTION: copy public key stored in bsh_sdd.pub to the following link and hit Enter \e[0m"
+	echo -e "https://scr.bsh-sdd.com/plugins/servlet/ssh/account/keys/add"
 	gedit bsh_sdd.pub
-	read -p "https://scr.bsh-sdd.com/plugins/servlet/ssh/account/keys/add"
 	echo -e "\e[32mok: successfully generated ssh-keys \e[0m"
 else
 	echo -e "\e[33mskip: ssh-key already exists \e[0m"
@@ -69,11 +75,11 @@ fi
 echo -e "setting up Robot Base"
 if [ ! -e ~/BSH/myles/setup-myles/ansible/jetson.yml ]
 then
+	sudo apt install curl
 	curl -L https://scr.bsh-sdd.com/projects/CIVBOTBA/repos/setup-robot-base/raw/setup.sh -u civ-robotbase:'n!io=Iq^7s(BOx' | bash -s $HOME/BSH myles CIVMYLES
 	cp $DIR/stuff/jetson.yml ~/BSH/myles/setup-myles/ansible/jetson.yml
 	cp $DIR/stuff/device.yml ~/BSH/myles/setup-myles/config/device.yml
 	cp $DIR/stuff/tf_role.yml ~/BSH/setup-robot-base/ansible/roles/tf_object_detection/tasks/main.yml
-	sudo chown -R $ME ~/BSH/*
 	echo -e "\e[32mok: added Robot Base config files \e[0m"
 else
 	echo -e "\e[33mskip: Robot Base already set-up \e[0m"
@@ -98,6 +104,7 @@ if echo "$answer" | grep -iq "^y"
 then
 	cd ~/BSH/myles/setup-myles/ansible/
 	ansible-playbook -i hosts -v jetson.yml -K
+	sudo chown -R $ME ~/BSH/*
 	echo -e "\e[32mok: ran playbook \e[0m"
 else
     echo -e "\e[33mskip: not running playbook \e[0m"
@@ -135,3 +142,17 @@ then
 else
 	echo -e "\e[33mskip: object detection repo already exists \e[0m"
 fi
+
+# clean jetson from unneeded packages
+echo -e "Do you want to clean Jetson from unneeded packages like libreoffice (y/n)? "
+read answer
+if echo "$answer" | grep -iq "^y"
+then
+	sudo apt purge libreoffice
+	sudo autoremove
+	echo -e "\e[32mok: cleaned jetson \e[0m"
+else
+    echo -e "\e[33mskip: keeping packages \e[0m"
+fi
+
+echo -e "\e[95mend: Jetson Tx2 successfully set-up \e[0m"
