@@ -13,7 +13,7 @@ echo -e "installing librealsense"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
 	sudo apt-get update
-	cd ~/workspace
+	mkdir ~/workspace && cd ~/workspace
 	git clone https://github.com/freemanlo/librealsense
 	cd librealsense
 	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup' \e[0m"
@@ -129,7 +129,7 @@ fi
 echo -e "cloning real_time_detection repo"
 if [ ! -d ~/workspace/realtime_object_detection ]
 then
-	mkdir ~/workspace && cd ~/workspace
+	cd ~/workspace
 	git clone https://github.com/GustavZ/realtime_object_detection.git
 	echo -e "\e[32mok: set-up object detection repo \e[0m"
 else
