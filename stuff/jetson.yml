@@ -12,9 +12,9 @@
             name: load_config_device
           tags: ['always']
           
-	  - import_role:
-	    name: local_common	# ADDED BY GUSTAV
-	   tags: ['local_common']
+        - import_role:
+            name: local_common	# ADDED BY GUSTAV
+          tags: ['local_common']
 	  
 #        - import_role:
 #            name: provisioning_metadata_start
