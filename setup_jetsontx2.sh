@@ -18,28 +18,6 @@ echo -e "> Remove apt update bug"
 sudo rm /etc/apt/sources.list.d/cuda-9-0-local.list
 sudo rm /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list
 
-# setup realsense camera
-echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
-if [ ! -e /usr/local/bin/realsense-viewer ]
-then
-	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
-	cd
-	git clone https://github.com/IntelRealSense/librealsense.git
-	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
-	cd librealsense
-	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
-	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
-	sudo udevadm control --reload-rules && udevadm trigger
-	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	mkdir build && cd build
-	cmake ../ -DBUILD_EXAMPLES=true
-	sudo make uninstall && make clean && make -j4 && sudo make install
-	echo -e "\e[32mok: Installed realsense sdk \e[0m"
-else
-	echo -e "\e[33mskip: Realsense packages are already installed \e[0m"
-fi
-
 # setup ansible
 echo -e "> Installing ansible and setup folder"
 if [ ! -e /usr/bin/ansible ]
@@ -149,6 +127,28 @@ then
 	echo -e "\e[32mok: Set-up object detection repo \e[0m"
 else
 	echo -e "\e[33mskip: Object detection repo already exists \e[0m"
+fi
+
+# setup realsense camera
+echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
+if [ ! -e /usr/local/bin/realsense-viewer ]
+then
+	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
+	cd
+	git clone https://github.com/IntelRealSense/librealsense.git
+	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
+	cd librealsense
+	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
+	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules && udevadm trigger
+	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	mkdir build && cd build
+	cmake ../ -DBUILD_EXAMPLES=true
+	sudo make uninstall && make clean && make -j4 && sudo make install
+	echo -e "\e[32mok: Installed realsense sdk \e[0m"
+else
+	echo -e "\e[33mskip: Realsense packages are already installed \e[0m"
 fi
 
 # setup Realsense for ROS
