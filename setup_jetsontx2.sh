@@ -168,13 +168,15 @@ else
 fi
 
 # clean jetson from unneeded packages
-echo -e "Do you want to clean Jetson from unneeded packages like libreoffice (y/n)? "
+echo -e "Do you want to clean Jetson from unneeded packages(y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y"
 then
 	sudo rm $DIR/stuff/bazel
 	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
 	sudo apt purge libreoffice
+	sudo rm -rf ~/BSH/opencv*
+	sudo rm -rf ~/BSH/tensorflow
 	sudo autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
 else
