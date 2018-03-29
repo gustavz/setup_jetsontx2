@@ -8,7 +8,13 @@ ME="$(whoami)"
 echo -e "\e[32mWritten for Nvidia Jetson Tx2 running on Ubuntu 16.04 flashed with JetPack3.2 \e[0m"
 read -p "> Hit any key to start..."
 
+# set Jetson into power mode
+echo -e "> Set Jetson to Power Mode"
+sudo nvpmodel -m 0
+sudo ./jetson_clocks.sh
+
 # make workspace directory
+echo -e "> Make workspace directory"
 if [ ! -d ~/workspace ]
 then
 	mkdir ~/workspace
@@ -19,7 +25,8 @@ echo -e "> Installing librealsense (this must be the first thing to do, idk why,
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
 	sudo apt-get update
-	mkdir -p ~/workspace/realsense cd ~/workspace/realsense
+	mkdir -p ~/workspace/realsense 
+	cd ~/workspace/realsense
 	git clone https://github.com/freemanlo/librealsense
 	cd librealsense
 	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup'"
@@ -93,7 +100,7 @@ echo -e "> Do you want to delete openCV which is necessary if flashed with JetPa
 read answer
 if echo "$answer" | grep -iq "^y"
 then
-    dpkg -l libopencv*
+    	dpkg -l libopencv*
 	sudo apt-get purge libopencv*
 	echo -e "\e[32mok: Removed all openCV packages \e[0m"
 else
@@ -119,7 +126,7 @@ fi
 echo -e "> Adding prebuild bazel binary v0.8.1"
 if [ ! -e /usr/local/bin/bazel ]
 then
-	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
+	wget -O /usr/local/bin/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
 	sudo cp $DIR/stuff/bazel /usr/local/bin/bazel
 	sudo chmod 755 /usr/local/bin/bazel
 	echo -e "\e[32mok: Added bazel \e[0m"
@@ -153,7 +160,8 @@ fi
 echo -e "Setup ROS for Realsense"
 if [ ! -d ~/workspace/realsense/catkin_ws ]
 then
-	mkdir -p ~/workspace/realsense/catkin_ws/src && cd ~/workspace/realsense/catkin_ws/src/
+	mkdir -p ~/workspace/realsense/catkin_ws/src
+	cd ~/workspace/realsense/catkin_ws/src/
 	git clone https://github.com/intel-ros/realsense.git
 	catkin_init_workspace 
 	cd ..
@@ -175,8 +183,7 @@ then
 	sudo rm $DIR/stuff/bazel
 	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
 	sudo apt purge libreoffice
-	sudo rm -rf ~/BSH/opencv*
-	sudo rm -rf ~/BSH/tensorflow
+	sudo rm -rf /usr/src/public_release
 	sudo autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
 else
