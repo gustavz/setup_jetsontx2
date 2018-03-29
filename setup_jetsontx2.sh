@@ -22,18 +22,16 @@ sudo rm /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list
 echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
-	sudo apt-get update
-	cd 
-	git clone https://github.com/freemanlo/librealsense
-	cd librealsense
-	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup'"
-	echo -e " Change, save and close file \e[0m"
-	gedit scripts/patch-utils.sh
-	read -p "> Hit any key to continue"
+	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
+	cd
+	git clone https://github.com/IntelRealSense/librealsense.git
 	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
-	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	cd librealsense
+	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules && udevadm trigger
+	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	mkdir build && cd build
 	cmake ../ -DBUILD_EXAMPLES=true
 	sudo make uninstall && make clean && make -j4 && sudo make install
@@ -180,7 +178,10 @@ then
 	sudo rm $DIR/stuff/bazel
 	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
 	sudo apt purge libreoffice
+	sudo rm -rf /usr/src/kernel
+	sudo rm -rf /usr/src/hardware
 	sudo rm -rf /usr/src/public_release
+	sudo rm -rf /usr/src/source_release.tbz2*
 	sudo autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
 else
