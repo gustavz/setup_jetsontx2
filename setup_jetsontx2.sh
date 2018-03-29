@@ -11,22 +11,19 @@ read -p "> Hit any key to start..."
 # set Jetson into power mode
 echo -e "> Set Jetson to Power Mode"
 sudo nvpmodel -m 0
-sudo ./jetson_clocks.sh
+sudo ~/jetson_clocks.sh
 
-# make workspace directory
-echo -e "> Make workspace directory"
-if [ ! -d ~/workspace ]
-then
-	mkdir ~/workspace
-fi
+# remove apt update bug
+echo -e "> Remove apt update bug"
+sudo rm /etc/apt/sources.list.d/cuda-9-0-local.list
+sudo rm /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list
 
 # setup realsense camera
 echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
 	sudo apt-get update
-	mkdir -p ~/workspace/realsense 
-	cd ~/workspace/realsense
+	cd 
 	git clone https://github.com/freemanlo/librealsense
 	cd librealsense
 	echo -e "\e[34mATTENTION: In 'patch-utils.sh' comment line 138 'sudo rm \${tgt_ko}.bckup'"
@@ -147,9 +144,9 @@ fi
 
 # setup object detection
 echo -e "> Cloning real_time_detection repo"
-if [ ! -d ~/workspace/realtime_object_detection ]
+if [ ! -d ~/realtime_object_detection ]
 then
-	cd ~/workspace
+	cd
 	git clone https://github.com/GustavZ/realtime_object_detection.git
 	echo -e "\e[32mok: Set-up object detection repo \e[0m"
 else
@@ -158,17 +155,17 @@ fi
 
 # setup Realsense for ROS
 echo -e "Setup ROS for Realsense"
-if [ ! -d ~/workspace/realsense/catkin_ws ]
+if [ ! -d ~/realsense/catkin_ws ]
 then
-	mkdir -p ~/workspace/realsense/catkin_ws/src
-	cd ~/workspace/realsense/catkin_ws/src/
+	mkdir -p ~/realsense/catkin_ws/src
+	cd ~/realsense/catkin_ws/src/
 	git clone https://github.com/intel-ros/realsense.git
 	catkin_init_workspace 
 	cd ..
 	catkin_make clean
 	catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
 	catkin_make install
-	echo "source ~/workspace/realsense/catkin_ws/devel/setup.bash" >> ~/.bashrc
+	echo "source ~/wrealsense/catkin_ws/devel/setup.bash" >> ~/.bashrc
 	source ~/.bashrc
 	echo -e "\e[32mok: Build Realsense catkin_ws  \e[0m"
 else
