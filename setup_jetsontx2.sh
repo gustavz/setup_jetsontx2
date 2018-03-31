@@ -133,19 +133,21 @@ fi
 echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
-	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
+	sudo apt-get update
 	cd
 	git clone https://github.com/IntelRealSense/librealsense.git
-	sudo apt-get install libusb-1.0-0-dev pkg-config cmake git libglfw3-dev qtcreator cmake-curses-gui build-essential libgtk-3-dev libssl-dev
+	sudo apt-get install git cmake libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libudev-dev cmake-curses-gui build-essential
 	cd librealsense
 	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules && udevadm trigger
-	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	mkdir build && cd build
-	cmake ../ -DBUILD_EXAMPLES=true
-	sudo make uninstall && make clean && make -j4 && sudo make install
+	#reboot
+	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	mkdir build && mkdir install
+	cd build
+	cmake ../ -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DBUILD_UNIT_TESTS=false
+	make -j4 && sudo make install
 	echo -e "\e[32mok: Installed realsense sdk \e[0m"
 else
 	echo -e "\e[33mskip: Realsense packages are already installed \e[0m"
