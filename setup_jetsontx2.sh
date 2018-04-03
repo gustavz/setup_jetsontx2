@@ -124,7 +124,7 @@ fi
 echo -e "> Adding prebuild bazel binary v0.8.1"
 if [ ! -e /usr/local/bin/bazel ]
 then
-	wget -O /usr/local/bin/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
+	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
 	sudo cp $DIR/stuff/bazel /usr/local/bin/bazel
 	sudo chmod 755 /usr/local/bin/bazel
 	echo -e "\e[32mok: Added bazel \e[0m"
@@ -166,7 +166,7 @@ then
 	catkin_make clean
 	catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
 	catkin_make install
-	echo "source ~/wrealsense/catkin_ws/devel/setup.bash" >> ~/.bashrc
+	echo "source ~/realsense/catkin_ws/devel/setup.bash" >> ~/.bashrc
 	source ~/.bashrc
 	echo -e "\e[32mok: Build Realsense catkin_ws  \e[0m"
 else
@@ -185,8 +185,8 @@ then
 	sudo rm -rf /usr/src/hardware
 	sudo rm -rf /usr/src/public_release
 	sudo rm -rf /usr/src/source_release.tbz2*
-	sudo rm ~/librealsense/kernel-4.4
-	sudo rm ~/4.4.38-tegra
+	sudo rm -rf ~/librealsense/kernel-4.4
+	sudo rm -rf ~/4.4.38-tegra
 	sudo rm ~/4.4.38-tegra-uvcvideo.ko
 	sudo autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
