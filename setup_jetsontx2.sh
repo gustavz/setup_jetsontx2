@@ -15,8 +15,33 @@ sudo ~/jetson_clocks.sh
 
 # remove apt update bug
 echo -e "> Remove apt update bug"
-sudo rm /etc/apt/sources.list.d/cuda-9-0-local.list
-sudo rm /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list
+mkdir ~/Backupfiles
+sudo mv /etc/apt/sources.list.d/cuda-9-0-local.list ~/Backupfiles/cuda-9-0-local.list
+sudo mv /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list ~/Backupfiles/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list
+
+# setup realsense camera
+echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
+if [ ! -e /usr/local/bin/realsense-viewer ]
+then
+	sudo apt-get update
+	cd
+	git clone https://github.com/IntelRealSense/librealsense.git
+	sudo apt-get install git cmake libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libudev-dev cmake-curses-gui build-essential
+	cd librealsense
+	#git checkout -b v2.10.1
+	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
+	cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
+	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules && udevadm trigger
+	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	mkdir build && cd build
+	cmake ../ -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DBUILD_UNIT_TESTS=false
+	make -j4 && sudo make install
+	echo -e "\e[32mok: Installed realsense sdk \e[0m"
+else
+	echo -e "\e[33mskip: Realsense packages are already installed \e[0m"
+fi
 
 # setup ansible
 echo -e "> Installing ansible and setup folder"
@@ -129,30 +154,6 @@ else
 	echo -e "\e[33mskip: Object detection repo already exists \e[0m"
 fi
 
-# setup realsense camera
-echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
-if [ ! -e /usr/local/bin/realsense-viewer ]
-then
-	sudo apt-get update
-	cd
-	git clone https://github.com/IntelRealSense/librealsense.git
-	sudo apt-get install git cmake libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libudev-dev cmake-curses-gui build-essential
-	cd librealsense
-	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
-	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
-	sudo udevadm control --reload-rules && udevadm trigger
-	#reboot
-	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	mkdir build && mkdir install
-	cd build
-	cmake ../ -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DBUILD_UNIT_TESTS=false
-	make -j4 && sudo make install
-	echo -e "\e[32mok: Installed realsense sdk \e[0m"
-else
-	echo -e "\e[33mskip: Realsense packages are already installed \e[0m"
-fi
-
 # setup Realsense for ROS
 echo -e "Setup ROS for Realsense"
 if [ ! -d ~/realsense/catkin_ws ]
@@ -184,6 +185,9 @@ then
 	sudo rm -rf /usr/src/hardware
 	sudo rm -rf /usr/src/public_release
 	sudo rm -rf /usr/src/source_release.tbz2*
+	sudo rm ~/librealsense/kernel-4.4
+	sudo rm ~/4.4.38-tegra
+	sudo rm ~/4.4.38-tegra-uvcvideo.ko
 	sudo autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
 else
