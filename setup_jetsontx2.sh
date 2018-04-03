@@ -23,6 +23,9 @@ sudo mv /etc/apt/sources.list.d/nv-tensorrt-ga-cuda9.0-trt3.0.4-20180208.list ~/
 echo -e "> Installing librealsense (this must be the first thing to do, idk why, ask intel)"
 if [ ! -e /usr/local/bin/realsense-viewer ]
 then
+	# libGL error patch
+	cd /usr/lib/aarch64-linux-gnu/
+	sudo ln -sf tegra/libGL.so libGL.so
 	sudo apt-get update
 	cd
 	git clone https://github.com/IntelRealSense/librealsense.git
@@ -34,7 +37,7 @@ then
 	cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules && udevadm trigger
-	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	mkdir build && cd build
 	cmake ../ -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DBUILD_UNIT_TESTS=false
 	make -j4 && sudo make install
