@@ -180,7 +180,7 @@ if echo "$answer" | grep -iq "^y"
 then
 	sudo rm $DIR/stuff/bazel
 	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
-	sudo apt purge libreoffice
+	sudo apt-get remove --purge libreoffice*
 	sudo rm -rf /usr/src/kernel
 	sudo rm -rf /usr/src/hardware
 	sudo rm -rf /usr/src/public_release
@@ -188,7 +188,8 @@ then
 	sudo rm -rf ~/librealsense/kernel-4.4
 	sudo rm -rf ~/4.4.38-tegra
 	sudo rm ~/4.4.38-tegra-uvcvideo.ko
-	sudo autoremove
+	sudo apt-get clean
+	sudo apt-get autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
 else
     echo -e "\e[33mskip: Keeping packages \e[0m"
