@@ -37,7 +37,7 @@ then
 	cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules && udevadm trigger
-	./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	mkdir build && cd build
 	cmake ../ -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DBUILD_UNIT_TESTS=false
 	make -j4 && sudo make install
@@ -130,17 +130,19 @@ then
 	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
 	sudo cp $DIR/stuff/bazel /usr/local/bin/bazel
 	sudo chmod 755 /usr/local/bin/bazel
+	sudo rm $DIR/stuff/bazel
 	echo -e "\e[32mok: Added bazel \e[0m"
 else
 	echo -e "\e[33mskip: Bazel already installed \e[0m"
 fi
 
 # install pre-build tensorflow
-echo -e "> Installing pre-build tensorflow 1.4 for py2.7 with gpu support"
+echo -e "> Installing pre-build tensorflow 1.7 for py2.7 with gpu support"
 if [ ! -d /usr/local/lib/python2.7/dist-packages/tensorflow ]
 then
-	wget -O $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl "https://www.dropbox.com/s/27xpbyg5m4a6v13/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl?dl=1"
-	sudo pip2 install $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
+	wget -O $DIR/stuff/tensorflow-1.7.0-cp27-cp27mu-linux_aarch64.whl "https://www.dropbox.com/s/2vk92feavra28yz/tensorflow-1.7.0-cp27-cp27mu-linux_aarch64.whl?dl=1"
+	sudo pip install $DIR/stuff/tensorflow-1.7.0-cp27-cp27mu-linux_aarch64.whl
+	sudo rm $DIR/stuff/tensorflow-1.7.0-cp27-cp27mu-linux_aarch64.whl
 	echo -e "\e[32mok:Successfully installed tensorflow \e[0m"
 else
 	echo -e "\e[33mskip: Tensorflow is already installed \e[0m"
@@ -155,6 +157,17 @@ then
 	echo -e "\e[32mok: Set-up object detection repo \e[0m"
 else
 	echo -e "\e[33mskip: Object detection repo already exists \e[0m"
+fi
+
+# setup semantic segmentation
+echo -e "> Cloning realtime_segmentation repo"
+if [ ! -d ~/realtime_segmentation ]
+then
+	cd
+	git clone https://github.com/GustavZ/realtime_segmenation.git
+	echo -e "\e[32mok: Set-up segmentation repo \e[0m"
+else
+	echo -e "\e[33mskip: Segmentation repo already exists \e[0m"
 fi
 
 # setup Realsense for ROS
@@ -176,13 +189,39 @@ else
 	echo -e "\e[33mskip: Realsense catkin_ws already exists \e[0m"
 fi
 
+# Install uff-Exporter
+echo -e "Install uff Exporter for TensorRT"
+if [ ! -d /usr/local/lib/python2.7/dist-packages/uff ]
+then
+	cd
+	wget -O ~/TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz https://developer.nvidia.com/compute/machine-learning/tensorrt/4.0/rc1/TensorRT-4.0.0.3.Ubuntu-16.04.4.x86_64-gnu.cuda-9.0.cudnn7.0
+	tar -xzf TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz
+	sudo pip install TensorRT-3.0.4/uff/uff-0.2.0-py2.py3-none-any.whl
+	sudo rm TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz
+	cd
+	git clone --recursive https://github.com/NVIDIA-Jetson/tf_to_trt_image_classification.git
+	cd tf_to_trt_image_classification
+	mkdir build
+	cd build
+	cmake ..
+	make 
+	cd ..
+#	source scripts/download_models.sh
+#	python scripts/models_to_frozen_graphs.py
+#	source scripts/download_images.sh
+#	python scripts/convert_plan.py data/frozen_graphs/inception_v1.pb data/plans/inception_v1.plan input 224 224 InceptionV1/Logits/SpatialSqueeze 1 0 float
+#	./build/examples/classify_image/classify_image data/images/gordon_setter.jpg data/plans/inception_v1.plan data/imagenet_labels_1001.txt input InceptionV1/Logits/SpatialSqueeze inception
+#	python scripts/frozen_graphs_to_plans.py
+	echo -e "\e[32mok: Installed uff Exporter  \e[0m"
+else
+	echo -e "\e[33mskip: uff already installed \e[0m"
+fi
+
 # clean jetson from unneeded packages
 echo -e "Do you want to clean Jetson from unneeded packages(y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y"
 then
-	sudo rm $DIR/stuff/bazel
-	sudo rm $DIR/stuff/tensorflow-1.4.0-cp27-cp27mu-linux_aarch64.whl
 	sudo apt-get remove --purge libreoffice*
 	sudo rm -rf /usr/src/kernel
 	sudo rm -rf /usr/src/hardware
