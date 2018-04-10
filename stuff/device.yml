@@ -53,7 +53,7 @@ tf_enable_gpu: true
 
 tf_build_from_source: true
 tf_repo_name: tensorflow
-tf_repo_branch: v1.4.0
+tf_repo_branch: v1.7.0
 
 tf_models_repo_name: tensorflow_models
 tf_models_repo_url: tensorflow/models
@@ -67,9 +67,6 @@ tf_models_dl_name: 'ssd_mobilenet_v1_coco_2017_11_17'
 
 ## OpenCV
 
-opencv_version: 3.3.1
-opencv_repo_branch: 3.3.1
-opencv_contrib_repo_branch: 3.3.1
-opencv_extra_repo_branch: 3.3.1
+opencv_version: 3.4.1
 opencv_build_examples: OFF
 opencv_force_rebuild: false
