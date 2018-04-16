@@ -31,10 +31,10 @@ then
 	git clone https://github.com/IntelRealSense/librealsense.git
 	sudo apt-get install git cmake libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libudev-dev cmake-curses-gui build-essential
 	cd librealsense
-	#git checkout -b v2.10.1
-	cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
-	cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
-	cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
+	git checkout -b v2.10.3
+	#cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
+	#cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
+	#cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
 	sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules && udevadm trigger
 	#./scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
