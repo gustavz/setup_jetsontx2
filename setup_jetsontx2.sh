@@ -31,7 +31,7 @@ then
 	git clone https://github.com/IntelRealSense/librealsense.git
 	sudo apt-get install git cmake libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libudev-dev cmake-curses-gui build-essential
 	cd librealsense
-	git checkout -b v2.10.3
+	git checkout -b v2.10.4
 	#cp $DIR/stuff/patch-realsense-ubuntu-xenial-jetson-tx2.sh ~/librealsense/scripts/patch-realsense-ubuntu-xenial-jetson-tx2.sh
 	#cp $DIR/stuff/patch-utils.sh ~/librealsense/scripts/patch-utils.sh
 	#cp $DIR/stuff/image.cpp ~/librealsense/src/image.cpp
@@ -124,10 +124,10 @@ else
 fi
 
 # setup pre-build bazel
-echo -e "> Adding prebuild bazel binary v0.8.1"
+echo -e "> Installing bazel 0.11.1"
 if [ ! -e /usr/local/bin/bazel ]
 then
-	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/wlsmzji2q95ojmi/bazel?dl=1?"
+	wget -O $DIR/stuff/bazel "https://www.dropbox.com/s/44waw9ddskn5ye1/bazel_0.11.1?dl=1"
 	sudo cp $DIR/stuff/bazel /usr/local/bin/bazel
 	sudo chmod 755 /usr/local/bin/bazel
 	sudo rm $DIR/stuff/bazel
@@ -170,6 +170,28 @@ else
 	echo -e "\e[33mskip: Segmentation repo already exists \e[0m"
 fi
 
+# setup Mobile Mask RCNN
+echo -e "> Install Mobile_Mask_RCNN"
+if [ ! -d ~/Mobile_Mask_RCNN ]
+then
+    echo -e "> Install Mobile_Mask_RCNN dependencies"
+    sudo pip install keras
+    sudo apt-get install libhdf5-dev
+    sudo pip install h5py
+    sudo pip install cython
+    sudo pip install imgaug
+    cd
+    git clone https://github.com/cocodataset/cocoapi.git
+    cd ~/cocoapi/PythonAPI
+    python setup.py build_ext install
+	cd
+	git clone https://github.com/GustavZ/Mobile_Mask_RCNN.git
+	echo -e "\e[32mok: Set-up Mobile Mask RCNN repo \e[0m"
+else
+	echo -e "\e[33mskip: Mobile Mask RCNN repo already exists \e[0m"
+fi
+
+
 # setup Realsense for ROS
 echo -e "Setup ROS for Realsense"
 if [ ! -d ~/realsense/catkin_ws ]
@@ -205,7 +227,7 @@ then
 	cd build
 	cmake ..
 	make 
-	cd ..
+#	cd ..
 #	source scripts/download_models.sh
 #	python scripts/models_to_frozen_graphs.py
 #	source scripts/download_images.sh
@@ -230,6 +252,8 @@ then
 	sudo rm -rf ~/librealsense/kernel-4.4
 	sudo rm -rf ~/4.4.38-tegra
 	sudo rm ~/4.4.38-tegra-uvcvideo.ko
+	sudo rm ~/NVIDIA_CUDA-9.0_Samples
+	sudo rm ~/VisionWorks-SFM-0.90-Samples
 	sudo apt-get clean
 	sudo apt-get autoremove
 	echo -e "\e[32mok: Cleaned jetson \e[0m"
