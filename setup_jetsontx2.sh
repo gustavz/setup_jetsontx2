@@ -159,38 +159,6 @@ else
 	echo -e "\e[33mskip: Object detection repo already exists \e[0m"
 fi
 
-# setup semantic segmentation
-echo -e "> Cloning realtime_segmentation repo"
-if [ ! -d ~/realtime_segmentation ]
-then
-	cd
-	git clone https://github.com/GustavZ/realtime_segmenation.git
-	echo -e "\e[32mok: Set-up segmentation repo \e[0m"
-else
-	echo -e "\e[33mskip: Segmentation repo already exists \e[0m"
-fi
-
-# setup Mobile Mask RCNN
-echo -e "> Install Mobile_Mask_RCNN"
-if [ ! -d ~/Mobile_Mask_RCNN ]
-then
-    echo -e "> Install Mobile_Mask_RCNN dependencies"
-    sudo pip install keras
-    sudo apt-get install libhdf5-dev
-    sudo pip install h5py
-    sudo pip install cython
-    sudo pip install imgaug
-    cd
-    git clone https://github.com/cocodataset/cocoapi.git
-    cd ~/cocoapi/PythonAPI
-    python setup.py build_ext install
-	cd
-	git clone https://github.com/GustavZ/Mobile_Mask_RCNN.git
-	echo -e "\e[32mok: Set-up Mobile Mask RCNN repo \e[0m"
-else
-	echo -e "\e[33mskip: Mobile Mask RCNN repo already exists \e[0m"
-fi
-
 
 # setup Realsense for ROS
 echo -e "Setup ROS for Realsense"
